@@ -1,107 +1,194 @@
-## JSON Database Class
+# JsonDatabase
 
-This PHP class, `JsonDatabase`, offers functionalities for managing data stored in JSON format. Below is an explanation of the provided methods and examples of their usage.
+`JsonDatabase` is a PHP class that provides an easy-to-use interface for managing JSON data files. It supports various operations such as Create, Read, Update, Delete (CRUD), searching, sorting, and exporting/importing data to/from CSV files. This tool is ideal for lightweight data storage needs without the complexity of a full-fledged database management system.
 
-### Constructor
+## Features
+
+- Load and save JSON data
+- Perform CRUD operations
+- Search data by fields or across all fields
+- Sort records
+- Retrieve file size
+- Export data to CSV
+- Import data from CSV
+- Calculate sum and average of numeric fields
+- Range queries and partial matching
+
+## Requirements
+
+- PHP 5.6 or higher
+
+## Installation
+
+1. **Clone the repository:**
+   ```sh
+   git clone https://github.com/yourusername/JsonDatabase.git
+   ```
+
+2. **Include the class in your project:**
+   ```php
+   require_once 'path/to/JsonDatabase.php';
+   ```
+
+## Usage
+
+### Initialization
 
 ```php
+require_once 'JsonDatabase.php';
+
+// Initialize the database with the JSON file
 $database = new JsonDatabase('data.json');
 ```
 
-Instantiates the `JsonDatabase` class with the filename of the JSON data.
-
 ### CRUD Operations
 
-#### Get All Entities
+**Create a new record:**
+```php
+$newUser = $database->create('users', ['name' => 'John Doe', 'email' => 'john@example.com']);
+print_r($newUser);
+```
 
+**Read all records:**
 ```php
 $users = $database->getAll('users');
 print_r($users);
 ```
 
-Retrieves all entities of a specified type (e.g., 'users').
-
-#### Get Entity by ID
-
+**Read a record by ID:**
 ```php
-$user = $database->getById('users', "658818a84aaaa");
+$user = $database->getById('users', 'unique_id_here');
 print_r($user);
 ```
 
-Retrieves a specific entity by its unique ID.
-
-#### Create Entity
-
+**Update a record:**
 ```php
-$newUser = $database->create('users', ['name' => 'New User', 'email' => 'newuser@example.com']);
-print_r($newUser);
-```
-
-Creates a new entity with the provided data.
-
-#### Update Entity
-
-```php
-$newUser['id'] = "658818a84aaaa";
-$updatedUser = $database->update('users', $newUser['id'], ['name' => 'Updated User']);
+$updatedUser = $database->update('users', 'unique_id_here', ['name' => 'Jane Doe']);
 print_r($updatedUser);
 ```
 
-Updates an existing entity with the provided data.
-
-#### Delete Entity
-
+**Delete a record:**
 ```php
-$updatedUser['id'] ="658818a84aaaa";
-$deletedUser = $database->delete('users', $updatedUser['id']);
+$deletedUser = $database->delete('users', 'unique_id_here');
 print_r($deletedUser);
 ```
 
-Deletes an entity by its ID.
+### Searching
 
-### Join Operations
-
-#### Left Join
-
+**Search by specific fields:**
 ```php
-$leftJoinResult = $database->leftJoin('users', 'orders', 'user_id');
-print_r($leftJoinResult);
+$matches = $database->searchFields('users', ['name', 'email'], 'John Doe');
+print_r($matches);
 ```
 
-Performs a left join between two entities based on a common field.
-
-#### Cross Join
-
+**Search across all fields:**
 ```php
-$crossJoinResult = $database->crossJoin('users', 'products');
-print_r($crossJoinResult);
+$matches = $database->searchAllFields('users', 'john@example.com');
+print_r($matches);
 ```
 
-Performs a cross join between two entities.
-
-#### One-to-Many Relationship
-
+**Search for values within a range:**
 ```php
-$oneToManyResult = $database->oneToMany('users', 'orders', 'id', 'user_id');
-print_r($oneToManyResult);
+$matches = $database->searchBetween('users', 'age', 20, 30);
+print_r($matches);
 ```
 
-Establishes a one-to-many relationship between parent and child entities.
-
-### Export to CSV
-
+**Search for partial matches:**
 ```php
-$csvExportResult = $database->exportToCsv('users');
-if ($csvExportResult) {
-    echo "Data exported to CSV file: $csvExportResult\n";
-} else {
-    echo "Failed to export data to CSV.\n";
+$matches = $database->searchWordsLike('users', 'example');
+print_r($matches);
+```
+
+### Sorting
+
+**Sort records:**
+```php
+$sortedUsers = $database->sort('users', 'name', 'asc');
+print_r($sortedUsers);
+```
+
+### File Management
+
+**Get file size:**
+```php
+$fileSize = $database->getFileSize();
+echo "File size: " . $fileSize;
+```
+
+### CSV Export and Import
+
+**Export to CSV:**
+```php
+$database->exportToCsv('users', 'users.csv');
+```
+
+**Import from CSV:**
+```php
+$database->importFromCsv('users', 'users.csv');
+```
+
+### Aggregate Functions
+
+**Calculate sum:**
+```php
+$totalAmount = $database->sum('transactions', 'amount');
+echo "Total amount: " . $totalAmount;
+```
+
+**Calculate average:**
+```php
+$averageAmount = $database->average('transactions', 'amount');
+echo "Average amount: " . $averageAmount;
+```
+
+## Example JSON Structure
+
+The JSON file should be structured with entities as top-level keys, each containing an array of records. Each record should be an associative array.
+
+```json
+{
+    "users": [
+        {
+            "id": "unique_id_1",
+            "name": "John Doe",
+            "email": "john@example.com",
+            "age": 28
+        },
+        {
+            "id": "unique_id_2",
+            "name": "Jane Smith",
+            "email": "jane@example.com",
+            "age": 34
+        }
+    ],
+    "transactions": [
+        {
+            "id": "transaction_id_1",
+            "amount": 100.0,
+            "date": "2023-01-01"
+        },
+        {
+            "id": "transaction_id_2",
+            "amount": 250.5,
+            "date": "2023-01-15"
+        }
+    ]
 }
 ```
 
-Exports data from a specified entity to a CSV file.
+## Contributing
 
-### Note
+Contributions are welcome! Please submit a pull request or open an issue to discuss any changes.
 
-- Adjust the file name and entity names according to your actual data structure.
-- Ensure proper error handling and data validation in a production environment.
+## License
+
+This project is licensed under the MIT License. See the `LICENSE` file for details.
+
+## Author
+
+[Your Name](https://github.com/yourusername)
+
+## Acknowledgments
+
+- Inspired by the simplicity and versatility of JSON for data storage.
+- Special thanks to the PHP community for continuous improvements and support.
